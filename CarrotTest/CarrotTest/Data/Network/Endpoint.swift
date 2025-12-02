@@ -13,15 +13,15 @@ enum ITBookEndpoint {
 }
 
 extension ITBookEndpoint {
-    private static let baseURLString = "https://api.itbook.store/1.0"
+    private static let baseURLString = "https://api.itbook.store"
     
     private var path: String {
         switch self {
         case let .search(query, page):
             if let page = page {
-                return "/search/\(query)/\(page)"
+                return "/1.0/search/\(query)/\(page)"
             } else {
-                return "/search/\(query)"
+                return "/1.0/search/\(query)"
             }
         case let .bookDetaul(isbn13):
             return "/books/\(isbn13)"
