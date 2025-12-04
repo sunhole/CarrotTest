@@ -77,6 +77,15 @@ final class BookDetailViewController: UIViewController {
         return label
     }()
     
+    private let pdfButtonsStackView: UIStackView = {
+        let stack = UIStackView()
+        stack.axis = .vertical
+        stack.spacing = 8
+        stack.alignment = .fill
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        return stack
+    }()
+    
     init(viewModel: BookDetailViewModel) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
@@ -111,6 +120,7 @@ final class BookDetailViewController: UIViewController {
         contentView.addArrangedSubview(descriptionLabel)
         contentView.addArrangedSubview(bookInfoLabel)
         contentView.addArrangedSubview(pdfLabel)
+        contentView.addArrangedSubview(pdfButtonsStackView)
         
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
@@ -155,15 +165,8 @@ final class BookDetailViewController: UIViewController {
         가격: \(viewModel.priceText)
         URL: \(viewModel.urlText)
         """
-        
-        if viewModel.pdf.isEmpty {
-            pdfLabel.text = "이 책은 미리보기 pdf를 제공하지 않습니다."
-        } else {
-            let lines = viewModel.pdf.map { chapter, link in
-                "\(chapter): \(link)"
-            }
-            pdfLabel.text = "미리보기 PDF\n" + lines.joined(separator: "\n")
-        }
+                
+        setupPDFSection()
         
         if let url = viewModel.imageURL {
            _ = ImageLoader.shared.load(url: url, completion: { [weak self] image in
@@ -171,4 +174,49 @@ final class BookDetailViewController: UIViewController {
             })
         }
     }
+    
+    private func setupPDFSection() {
+        // 이전에 만든 버튼들 제거 다시 그릴 때 중복 방지
+        pdfButtonsStackView.arrangedSubviews.forEach { button in
+            pdfButtonsStackView.removeArrangedSubview(button)
+            button.removeFromSuperview()
+        }
+        
+        let pdfDict = viewModel.pdf
+        
+        if pdfDict.isEmpty {
+            pdfLabel.text = "이 책은 미리보기 pdf를 제공하지 않습니다."
+            return
+        }
+        
+        pdfLabel.text = "미리보기 PDF"
+        
+        // 챕터 이름으로 정렬해서 버튼 만들기
+        let sortedEntries = pdfDict.sorted { $0.key < $1.key }
+        
+        for (chapter, link) in sortedEntries {
+            guard let url = URL(string: link) else { continue }
+            
+            let button = UIButton(type: .system)
+            button.setTitle(chapter, for: .normal)
+            button.contentHorizontalAlignment = .left
+            button.titleLabel?.font = .systemFont(ofSize: 14, weight: .medium)
+            
+            // 버튼 탭 시 PDF 뷰어로 이동
+            let action = UIAction { [weak self] _ in
+                self?.openPDF(url: url)
+            }
+            button.addAction(action, for: .touchUpInside)
+            
+            pdfButtonsStackView.addArrangedSubview(button)
+        }
+    }
+    
+    private func openPDF(url: URL) {
+        let viewer = PDFViewerViewController(pdfURL: url)
+        navigationController?.pushViewController(viewer, animated: true)
+    }
 }
+
+    
+
