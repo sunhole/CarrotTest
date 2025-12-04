@@ -60,7 +60,7 @@ final class SearchViewController: UIViewController {
     private func setupTableView() {
         tableView.dataSource = self
         tableView.delegate = self
-        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "Cell")
+        tableView.register(BookTableViewCell.self, forCellReuseIdentifier: BookTableViewCell.reuseIdentifier)
     }
     
     private func setupSearchBar() {
@@ -106,18 +106,17 @@ extension SearchViewController: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
+        guard let cell = tableView.dequeueReusableCell(
+            withIdentifier: BookTableViewCell.reuseIdentifier,
+            for: indexPath
+        ) as? BookTableViewCell else {
+            return UITableViewCell()
+        }
+        
         let book = viewModel.books[indexPath.row]
-        
-        var content = cell.defaultContentConfiguration()
-        content.text = book.title
-        content.secondaryText = book.subtitle.isEmpty ? book.isbn13 : book.subtitle
-        cell.contentConfiguration = content
-        
+        cell.configure(with: book)
         return cell
     }
-    
-    
 }
 
 extension SearchViewController: UITableViewDelegate {
