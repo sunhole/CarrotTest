@@ -79,6 +79,25 @@ final class SearchViewController: UIViewController {
             }
         })
     }
+    
+    private func loadNextPage(indexPath: IndexPath) {
+        //book데이터가없는경우면 리턴
+        guard !viewModel.books.isEmpty else { return }
+        
+        let lastIndex = viewModel.books.count - 1
+        
+        guard indexPath.row == lastIndex else { return }
+        guard viewModel.isLoadMorePage else { return }
+        
+        viewModel.loadNextPage(completion: { [weak self] result in
+            switch result {
+            case .success:
+                self?.tableView.reloadData()
+            case .failure(let error):
+                print("다음페이지로드 실패 : \(error)")
+            }
+        })
+    }
 }
 
 extension SearchViewController: UITableViewDataSource {
@@ -108,6 +127,10 @@ extension SearchViewController: UITableViewDelegate {
         let detailVC = BookDetailViewController(viewModel: detailViewModel)
         navigationController?.pushViewController(detailVC, animated: true)
         
+    }
+    //테이블뷰 스크롤시 불림 셀 로드 할것이다
+    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        loadNextPage(indexPath: indexPath)
     }
 }
 

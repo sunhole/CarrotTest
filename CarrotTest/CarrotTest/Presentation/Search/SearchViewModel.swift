@@ -14,6 +14,7 @@ final class SearchViewModel {
     private var currentQuery: String = ""
     private var currentPage: Int = 1
     private var isLoading: Bool = false
+    private var totalCount: Int = 0
     
     init(repository: BookRepository = BookRepositoryImpl()) {
         self.repository = repository
@@ -34,8 +35,18 @@ final class SearchViewModel {
                 
                 switch result {
                 case .success(let response):
-                    self.books = response.books
+                    self.totalCount = response.totalCount
+                    self.currentPage = response.currentPage
+                    /* 검색을 새로 할떄마다 페이지가 1일텐데 이경우 기존 book 데이터에 새로 추가하면 안되기때문에 기존데이터 지우고 새데이터로 교체가 필요함
+                        즉 page 1은 새로운 검색이니 새로 고침 개념이고 1아 아닐경우 이어서 데이터를 추가하는개념
+                     */
+                    if page == 1 {
+                        self.books = response.books
+                    } else {
+                        self.books.append(contentsOf: response.books)
+                    }
                     completion(.success(()))
+                    print("Log:\(response.currentPage)\(self.books.count)/\(self.totalCount)")
                 case .failure(let error):
                     completion(.failure(error))
                 }
@@ -43,4 +54,22 @@ final class SearchViewModel {
         })
     }
     
+    //다음페이지 호출 함수
+    //서치 내부에서 로딩플래그가있으니 다음 페이지 값만 계산해서 재사용하도록 처리
+    func loadNextPage(completion: @escaping (Result<Void, NetworkError>) -> Void) {
+        //로딩중이 아니며 현재 쿼리가 있고 더불러올 페이지가 있다면
+        guard !isLoading,
+              !currentQuery.isEmpty,
+              isLoadMorePage else { return }
+        
+        let nextPage = currentPage + 1
+        
+        search(query: currentQuery, page: nextPage, completion: completion)
+    }
+}
+
+extension SearchViewModel {
+    var isLoadMorePage: Bool {
+        return books.count < totalCount
+    }
 }
