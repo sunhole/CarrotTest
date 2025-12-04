@@ -34,6 +34,11 @@ final class SearchViewController: UIViewController {
         self.search(query: "swift")
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.navigationBar.isHidden = true
+    }
+    
     private func setupViews() {
         view.backgroundColor = .white
         navigationController?.navigationBar.isHidden = true
@@ -98,7 +103,11 @@ extension SearchViewController: UITableViewDataSource {
 
 extension SearchViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        //상세 뷰 이동 처리
+        let book = viewModel.books[indexPath.row]
+        let detailViewModel = BookDetailViewModel(repository: BookRepositoryImpl(), isbn13: book.isbn13)
+        let detailVC = BookDetailViewController(viewModel: detailViewModel)
+        navigationController?.pushViewController(detailVC, animated: true)
+        
     }
 }
 
