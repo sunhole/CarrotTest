@@ -75,7 +75,7 @@ final class SearchViewController: UIViewController {
             case .success:
                 self?.tableView.reloadData()
             case .failure(let error):
-                print(error)
+                self?.showErrorAlert(message: "검색 중 오류 발생\n \(error)")
             }
         })
     }
@@ -94,7 +94,7 @@ final class SearchViewController: UIViewController {
             case .success:
                 self?.tableView.reloadData()
             case .failure(let error):
-                print("다음페이지로드 실패 : \(error)")
+                self?.showErrorAlert(message: "다음 페이지 로딩중 에러가 발생했습니다.\n \(error)")
             }
         })
     }
