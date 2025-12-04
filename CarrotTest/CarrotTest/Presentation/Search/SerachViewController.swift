@@ -26,12 +26,17 @@ final class SearchViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "책 검색"
+
         setupViews()
         setupTableView()
         setupSearchBar()
+        
+        self.search(query: "swift")
     }
     
     private func setupViews() {
+        view.backgroundColor = .white
+        navigationController?.navigationBar.isHidden = true
         view.addSubview(searchBar)
         view.addSubview(tableView)
         
@@ -73,20 +78,34 @@ final class SearchViewController: UIViewController {
 
 extension SearchViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 0
+        return viewModel.books.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        return UITableViewCell()
+        let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
+        let book = viewModel.books[indexPath.row]
+        
+        var content = cell.defaultContentConfiguration()
+        content.text = book.title
+        content.secondaryText = book.subtitle.isEmpty ? book.isbn13 : book.subtitle
+        cell.contentConfiguration = content
+        
+        return cell
     }
     
     
 }
 
 extension SearchViewController: UITableViewDelegate {
-    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        //상세 뷰 이동 처리
+    }
 }
 
 extension SearchViewController: UISearchBarDelegate {
-    
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        let text = searchBar.text ?? ""
+        search(query: text)
+        searchBar.resignFirstResponder()
+    }
 }

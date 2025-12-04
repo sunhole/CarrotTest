@@ -9,8 +9,8 @@ import Foundation
 
 final class SearchViewModel {
     private let repository: BookRepository
-    
-    private var books: [BookModel] = []
+    //내부 수정만 외부 읽기만 가능하게 public으로 권한을 열기보단 (set)으로 정의
+    private(set) var books: [BookModel] = []
     private var currentQuery: String = ""
     private var currentPage: Int = 1
     private var isLoading: Bool = false
@@ -28,15 +28,17 @@ final class SearchViewModel {
         currentPage = page
         
         repository.searchBooks(query: query, page: page, completion: { [weak self] result in
-            guard let self = self else { return }
-            self.isLoading = false
-            
-            switch result {
-            case .success(let response):
-                self.books = response.books
-                completion(.success(()))
-            case .failure(let error):
-                completion(.failure(error))
+            DispatchQueue.main.async {
+                guard let self = self else { return }
+                self.isLoading = false
+                
+                switch result {
+                case .success(let response):
+                    self.books = response.books
+                    completion(.success(()))
+                case .failure(let error):
+                    completion(.failure(error))
+                }
             }
         })
     }
