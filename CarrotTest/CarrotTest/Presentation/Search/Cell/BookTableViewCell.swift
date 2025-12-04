@@ -26,8 +26,39 @@ final class BookTableViewCell: UITableViewCell {
     
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.font = .boldSystemFont(ofSize: 15)
+        label.font = .boldSystemFont(ofSize: 13)
         label.numberOfLines = 2
+        return label
+    }()
+    
+    private let subtitleLabel: UILabel = {
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 10)
+        label.textColor = .secondaryLabel
+        label.numberOfLines = 2
+        return label
+    }()
+    
+    private let isbnLabel: UILabel = {
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 9)
+        label.textColor = .secondaryLabel
+        return label
+    }()
+    
+    private let priceLabel: UILabel = {
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 10)
+        label.textColor = .secondaryLabel
+        return label
+    }()
+    
+    private let urlLabel: UILabel = {
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 9)
+        label.textColor = .lightGray
+        label.numberOfLines = 1
+        label.lineBreakMode = .byTruncatingMiddle
         return label
     }()
     
@@ -44,19 +75,28 @@ final class BookTableViewCell: UITableViewCell {
     private func setupLayout() {
         selectionStyle = .none
         
-        titleLabel.translatesAutoresizingMaskIntoConstraints = false
+        let infoStack = UIStackView(arrangedSubviews: [isbnLabel, priceLabel])
+        infoStack.axis = .horizontal
+        infoStack.spacing = 8
+        infoStack.distribution = .fillProportionally
+        
+        let textStack = UIStackView(arrangedSubviews: [titleLabel, subtitleLabel, infoStack, urlLabel])
+        textStack.axis = .vertical
+        textStack.spacing = 4
+        textStack.translatesAutoresizingMaskIntoConstraints = false
         
         contentView.addSubview(thumbnailImageView)
-        contentView.addSubview(titleLabel)
+        contentView.addSubview(textStack)
         
         NSLayoutConstraint.activate([
             thumbnailImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 12),
             thumbnailImageView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 8),
             thumbnailImageView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -8),
             
-            titleLabel.leadingAnchor.constraint(equalTo: thumbnailImageView.trailingAnchor, constant: 12),
-            titleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -12),
-            titleLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor)
+            textStack.leadingAnchor.constraint(equalTo: thumbnailImageView.trailingAnchor, constant: 12),
+            textStack.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -12),
+            textStack.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 8),
+            textStack.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -8)
         ])
     }
     
@@ -64,6 +104,10 @@ final class BookTableViewCell: UITableViewCell {
         super.prepareForReuse()
         thumbnailImageView.image = nil
         titleLabel.text = nil
+        subtitleLabel.text = nil
+        isbnLabel.text = nil
+        priceLabel.text = nil
+        urlLabel.text = nil
         
         if let id = loadID {
             ImageLoader.shared.cancel(id: id)
@@ -73,6 +117,10 @@ final class BookTableViewCell: UITableViewCell {
     
     func configure(with book: BookModel) {
         titleLabel.text = book.title
+        subtitleLabel.text = book.subtitle
+        isbnLabel.text = book.isbn13
+        priceLabel.text = book.price
+        urlLabel.text = book.url
         
         if let url = URL(string: book.image) {
             loadID = ImageLoader.shared.load(url: url, completion: { [weak self] image in

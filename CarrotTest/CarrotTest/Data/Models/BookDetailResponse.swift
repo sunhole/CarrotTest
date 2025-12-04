@@ -23,4 +23,6 @@ struct BookDetailResponse: Decodable {
     let price: String
     let image: String
     let url: String
+    //api콜 하다보면 가끔 pdf값이 없는경우도 있어서 일단 옵셔널로 처리
+    let pdf: [String: String]?
 }

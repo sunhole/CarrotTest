@@ -54,8 +54,55 @@ extension BookDetailViewModel {
         book?.desc ?? ""
     }
     
+    var subtitleText: String {
+        book?.subtitle ?? ""
+    }
+    
     var imageURL: URL? {
         guard let urlString = book?.image else { return nil }
         return URL(string: urlString)
     }
+    
+    var publisherText: String {
+        book?.publisher ?? ""
+    }
+    
+    var languageText: String {
+        book?.language ?? "" 
+    }
+    
+    var isbn10Text: String {
+        book?.isbn10 ?? ""
+    }
+    
+    var isbn13Text: String {
+        book?.isbn13 ?? ""
+    }
+    
+    var pagesText: String {
+        book?.pages ?? ""
+    }
+    
+    var yearText: String {
+        book?.year ?? "-"
+    }
+    
+    var ratingText: String {
+        book?.rating ?? ""
+    }
+    
+    
+    var priceText: String {
+        book?.price ?? ""
+    }
+    
+    
+    var urlText: String {
+        book?.url ?? "-"
+    }
+    
+    var pdf: [String: String] {
+        book?.pdf ?? [:]
+    }
+    
 }

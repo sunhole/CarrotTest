@@ -39,6 +39,13 @@ final class BookDetailViewController: UIViewController {
         return label
     }()
     
+    private let subtitleLabel: UILabel = {
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 16)
+        label.numberOfLines = 0
+        return label
+    }()
+    
     private let authorsLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 14)
@@ -50,6 +57,22 @@ final class BookDetailViewController: UIViewController {
     private let descriptionLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 14)
+        label.numberOfLines = 0
+        return label
+    }()
+    
+    private let bookInfoLabel: UILabel = {
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 13)
+        label.textColor = .secondaryLabel
+        label.numberOfLines = 0
+        return label
+    }()
+    
+    private let pdfLabel: UILabel = {
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 13)
+        label.textColor = .systemBlue
         label.numberOfLines = 0
         return label
     }()
@@ -83,8 +106,11 @@ final class BookDetailViewController: UIViewController {
         
         contentView.addArrangedSubview(imageView)
         contentView.addArrangedSubview(titleLabel)
+        contentView.addArrangedSubview(subtitleLabel)
         contentView.addArrangedSubview(authorsLabel)
         contentView.addArrangedSubview(descriptionLabel)
+        contentView.addArrangedSubview(bookInfoLabel)
+        contentView.addArrangedSubview(pdfLabel)
         
         NSLayoutConstraint.activate([
             scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
@@ -114,21 +140,35 @@ final class BookDetailViewController: UIViewController {
     
     private func updateUI(){
         titleLabel.text = viewModel.titleText
+        subtitleLabel.text = viewModel.subtitleText
         authorsLabel.text = viewModel.authorsText
         descriptionLabel.text = viewModel.descriptionText
         
-        if let url = viewModel.imageURL {
-            loadImage(url: url)
-        }
-    }
-    
-    private func loadImage(url: URL) {
-        URLSession.shared.dataTask(with: url) { [weak self] data, _, _ in
-            guard let data = data,
-                  let image = UIImage(data: data) else { return }
-            DispatchQueue.main.async {
-                self?.imageView.image = image
+        bookInfoLabel.text = """
+        출판사: \(viewModel.publisherText)
+        언어: \(viewModel.languageText)
+        ISBN10: \(viewModel.isbn10Text)
+        ISBN13: \(viewModel.isbn13Text)
+        페이지: \(viewModel.pagesText)
+        출간 연도: \(viewModel.yearText)
+        평점: \(viewModel.ratingText)
+        가격: \(viewModel.priceText)
+        URL: \(viewModel.urlText)
+        """
+        
+        if viewModel.pdf.isEmpty {
+            pdfLabel.text = "이 책은 미리보기 pdf를 제공하지 않습니다."
+        } else {
+            let lines = viewModel.pdf.map { chapter, link in
+                "\(chapter): \(link)"
             }
-        }.resume()
+            pdfLabel.text = "미리보기 PDF\n" + lines.joined(separator: "\n")
+        }
+        
+        if let url = viewModel.imageURL {
+           _ = ImageLoader.shared.load(url: url, completion: { [weak self] image in
+                self?.imageView.image = image
+            })
+        }
     }
 }
