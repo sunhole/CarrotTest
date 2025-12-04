@@ -24,7 +24,7 @@ extension ITBookEndpoint {
                 return "/1.0/search/\(query)"
             }
         case let .bookDetaul(isbn13):
-            return "/books/\(isbn13)"
+            return "/1.0/books/\(isbn13)"
         }
     }
     
