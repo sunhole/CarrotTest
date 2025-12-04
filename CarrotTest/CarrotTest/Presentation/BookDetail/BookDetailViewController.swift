@@ -142,7 +142,7 @@ final class BookDetailViewController: UIViewController {
             case .success:
                 self?.updateUI()
             case .failure(let error):
-                print("!에러발생! \(error)")
+                self?.showErrorAlert(message: "도서 상세 정보 조회에 실패했습니다.\n \(error)")
             }
         })
     }
