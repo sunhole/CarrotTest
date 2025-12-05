@@ -19,6 +19,7 @@ ITBookStore API 기반으로 개발된 도서 검색·상세 조회 iOS 앱 입�
 사용 API 
 //get
 검색API: https://api.itbook.store/1.0/search/{query}/{page} 
+
 상세API: https://api.itbook.store/1.0/books/{isbn13}
 
 사용 기술 
